@@ -1,0 +1,12 @@
+{
+  "meta": { "year": 2025, "round": 1082, "type": "jumbo" },
+  "prizes": [
+    { "name": "1等", "type": "exact", "group": "01", "number": "123456", "amount": 700000000 },
+    { "name": "2等", "type": "exact", "group": "02", "number": "234567", "amount": 100000000 },
+    { "name": "3等", "type": "exact", "group": "03", "number": "345678", "amount": 10000000 },
+    { "name": "4等", "type": "common_all_groups", "number": "456789", "amount": 1000000 },
+    { "name": "5等", "type": "last_n_digits", "n": 3, "digits": "789", "amount": 10000 },
+    { "name": "6等", "type": "last_n_digits", "n": 2, "digits": "89", "amount": 3000 },
+    { "name": "7等", "type": "last_n_digits", "n": 1, "digits": "9", "amount": 300 }
+  ]
+}
