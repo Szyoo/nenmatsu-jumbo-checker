@@ -388,7 +388,7 @@ function setupRoundSwitch() {
   const latestBtn = document.getElementById("latest");
   if (!roundSelect || typeButtons.length === 0 || !latestBtn || !typeSwitch) return;
 
-  const allOptions = Array.from(roundSelect.options);
+  const allOptions = Array.from(roundSelect.options).map(opt => opt.cloneNode(true));
 
   function setActiveType(type) {
     typeButtons.forEach(btn => {
@@ -397,10 +397,9 @@ function setupRoundSwitch() {
       btn.setAttribute("aria-pressed", String(active));
     });
     typeSwitch.dataset.active = type;
-    allOptions.forEach(opt => {
-      const match = opt.dataset.type === type;
-      opt.hidden = !match;
-    });
+    roundSelect.innerHTML = "";
+    const filtered = allOptions.filter(opt => opt.dataset.type === type);
+    filtered.forEach(opt => roundSelect.appendChild(opt.cloneNode(true)));
     const latest = getLatestOption(type);
     if (latest) roundSelect.value = latest.value;
   }
@@ -643,13 +642,13 @@ async function runOcr() {
 
   const groupRect = {
     x: Math.floor(w * 0.30),
-    y: Math.floor(h * 0.28),
+    y: Math.floor(h * 0.26),
     w: Math.floor(w * 0.40),
     h: Math.floor(h * 0.18)
   };
   const numberRect = {
     x: Math.floor(w * 0.24),
-    y: Math.floor(h * 0.52),
+    y: Math.floor(h * 0.54),
     w: Math.floor(w * 0.52),
     h: Math.floor(h * 0.20)
   };
