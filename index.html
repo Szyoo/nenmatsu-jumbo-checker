@@ -4,45 +4,185 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>年末ジャンボ 当せんチェッカー</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
-  <main class="container">
-    <h1>年末ジャンボ 当せんチェッカー</h1>
+  <div class="ambient-bg"></div>
+  <canvas id="fireworks" class="fireworks" aria-hidden="true"></canvas>
 
-    <section class="card">
-      <label>
-        回号（第◯回）
-        <select id="round">
-          <option value="2025_jumbo_1082">2025 年末ジャンボ（第1082回）</option>
-          <option value="2025_mini_1083">2025 年末ジャンボミニ（第1083回）</option>
-        </select>
-      </label>
+  <div class="header-block">
+    <p class="eyebrow" data-i18n="eyebrow">Nenmatsu Jumbo Checker</p>
+    <header class="title-row">
+      <h1 class="app-title" data-i18n="title">年末ジャンボ 当せんチェッカー</h1>
+      <div class="control-panel">
+        <div class="lang-switch">
+          <div class="select-wrapper lang-select-wrapper">
+            <select id="lang" class="lang-select" aria-label="Language">
+              <option value="zh">中文</option>
+              <option value="ja">日本語</option>
+              <option value="en">English</option>
+            </select>
+            <svg class="select-icon" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <button id="langBtn" class="lang-btn" type="button" aria-label="Language">
+            <span class="lang-indicator">日</span>
+          </button>
+            <div id="langMenu" class="lang-menu" role="menu">
+              <button type="button" class="lang-item" data-lang="zh">中文</button>
+              <button type="button" class="lang-item" data-lang="ja">日本語</button>
+              <button type="button" class="lang-item" data-lang="en">English</button>
+            </div>
+        </div>
+        <button id="theme" class="theme-btn" type="button" aria-label="Toggle Theme">
+          <span class="theme-icon">☀</span>
+        </button>
+      </div>
+    </header>
+  </div>
 
-      <div class="grid">
-        <label>
-          ユニット（任意）
-          <input id="unit" inputmode="numeric" placeholder="例: 12" />
-        </label>
+  <main class="page">
+    <section class="card-shell">
 
-        <label>
-          組
-          <input id="group" placeholder="例: 01" />
-        </label>
 
-        <label>
-          番号（6桁）
-          <input id="number" inputmode="numeric" placeholder="例: 123456" />
-        </label>
+      <div class="type-round-row">
+        <div class="form-group">
+          <label class="input-label" data-i18n="type_label">種類</label>
+          <div class="type-switch" role="group" aria-label="Ticket Type">
+            <button class="type-btn is-active" type="button" data-type="jumbo" aria-pressed="true" data-i18n="type_jumbo">年末ジャンボ</button>
+            <button class="type-btn" type="button" data-type="mini" aria-pressed="false" data-i18n="type_mini">年末ジャンボミニ</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="round-row">
+            <div class="select-wrapper full-width">
+              <select id="round">
+                <option value="2024_jumbo_1031" data-type="jumbo" data-year="2024" data-round="1031" data-i18n="opt_2024_jumbo">2024 年末ジャンボ（第1031回）</option>
+                <option value="2025_jumbo_1082" data-type="jumbo" data-year="2025" data-round="1082" data-i18n="opt_2025_jumbo">2025 年末ジャンボ（第1082回・模拟）</option>
+                <option value="2025_mini_1083" data-type="mini" data-year="2025" data-round="1083" data-i18n="opt_2025_mini">2025 年末ジャンボミニ（第1083回）</option>
+              </select>
+              <svg class="select-icon" width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <button id="latest" class="button" type="button" data-i18n="latest_btn">最新へ</button>
+          </div>
+        </div>
       </div>
 
-      <button id="check">判定する</button>
+      <div class="form-group">
+        <div class="label-row">
+          <label class="input-label" data-i18n="buy_label">購入タイプ</label>
+          <p class="helper-text" data-i18n="buy_hint" data-buy-hint>連番は組＋番号の先頭5桁を入力すると、10連番を自動追加します。</p>
+        </div>
+        <div class="tab-switch" role="group" aria-label="Purchase Type">
+          <button class="tab-btn is-active" type="button" data-buy="bara" aria-pressed="true" data-i18n="buy_bara">バラ</button>
+          <button class="tab-btn" type="button" data-buy="renban" aria-pressed="false" data-i18n="buy_renban">連番</button>
+        </div>
+      </div>
 
-      <pre id="result" class="result" aria-live="polite"></pre>
-      <p class="note">毎年、当せん番号発表後に data/*.json を手動更新してください。</p>
+      <div class="input-row">
+        <div class="form-group">
+          <label for="group" class="input-label" data-i18n="group_label">組</label>
+          <input id="group" type="text" inputmode="numeric" pattern="\\d{1,3}" maxlength="3" class="modern-input" placeholder="110" data-i18n-placeholder="group_ph" />
+        </div>
+
+        <div class="form-group">
+          <label for="number" class="input-label" data-i18n="number_label">番号</label>
+          <input id="number" type="text" inputmode="numeric" pattern="\\d{6}" maxlength="6" class="modern-input" placeholder="123456" data-i18n-placeholder="number_ph" />
+        </div>
+
+        <div class="form-group">
+          <label class="input-label" data-i18n="add_label">追加</label>
+          <button id="add" class="button full-width" type="button" data-i18n="add_btn">追加する</button>
+        </div>
+
+        <div class="form-group scan-group">
+          <label class="input-label" data-i18n="scan_label">拍照识别</label>
+          <button id="scan" class="button full-width scan-button" type="button" data-i18n="scan_btn">拍照识别</button>
+        </div>
+      </div>
+
+      <div class="action-area">
+        <button id="scanMobile" class="button scan-mobile" type="button" data-i18n="scan_btn">拍照识别</button>
+        <p class="hint-text" data-i18n="hint">入力内容は保存されません。</p>
+      </div>
+
+      <div class="result-area">
+        <div class="result-head">
+          <h2 class="result-title" data-i18n="result_title">判定結果</h2>
+          <button id="check" class="button">
+            <span data-i18n="check_btn">判定する</span>
+          </button>
+          <button id="clearList" class="button" type="button" data-i18n="clear_btn">リストをクリア</button>
+        </div>
+        <div class="result-box" aria-live="polite">
+          <div id="resultTotal" class="result-total" data-i18n="result_desc">ここに結果が表示されます</div>
+          <ul id="resultList" class="result-list"></ul>
+        </div>
+      </div>
+
     </section>
   </main>
 
+  <div id="scanModal" class="modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="scanTitle">
+      <div class="modal-head">
+        <h3 id="scanTitle" data-i18n="scan_title">识别结果</h3>
+        <button id="scanClose" class="icon-btn" type="button" aria-label="close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="scan-preview">
+          <video id="scanVideo" autoplay playsinline></video>
+          <canvas id="scanCanvas"></canvas>
+          <button id="scanCloseCam" class="scan-close" type="button" aria-label="close">✕</button>
+          <button id="scanCapture" class="scan-capture" type="button" aria-label="capture">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 7h3l2-2h6l2 2h3"></path>
+              <rect x="3" y="7" width="18" height="14" rx="2"></rect>
+              <circle cx="12" cy="14" r="3"></circle>
+            </svg>
+          </button>
+          <div class="scan-guide">
+            <div class="scan-box scan-box-group">
+              <span data-i18n="scan_guide_group">XX組</span>
+            </div>
+            <div class="scan-box scan-box-number">
+              <span data-i18n="scan_guide_number">番号</span>
+            </div>
+          </div>
+        </div>
+        <div class="scan-result">
+          <p data-i18n="scan_tip">请对准票面中的组和号</p>
+          <div class="scan-fields">
+            <div>
+              <span data-i18n="group_label">組</span>
+              <input id="scanGroup" class="scan-input" inputmode="numeric" pattern="\\d{1,3}" maxlength="3" value="" placeholder="---" />
+            </div>
+            <div>
+              <span data-i18n="number_label">番号</span>
+              <input id="scanNumber" class="scan-input" inputmode="numeric" pattern="\\d{6}" maxlength="6" value="" placeholder="------" />
+            </div>
+          </div>
+          <p id="scanStatus" class="scan-status">--</p>
+          <div class="scan-debug">
+            <div class="scan-debug-head">
+              <p class="scan-debug-title">OCR RAW</p>
+              <button id="scanCopy" class="button" type="button" data-i18n="scan_copy">复制</button>
+            </div>
+            <pre id="scanRaw" class="scan-raw"></pre>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button id="scanRetry" class="button" type="button" data-i18n="scan_retry">重新识别</button>
+        <button id="scanConfirm" class="button" type="button" data-i18n="scan_confirm" disabled>确认添加</button>
+      </div>
+    </div>
+  </div>
+
   <script src="./main.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.5/dist/tesseract.min.js"></script>
 </body>
 </html>

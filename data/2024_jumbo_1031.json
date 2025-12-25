@@ -1,0 +1,23 @@
+{
+  "meta": { "year": 2024, "round": 1031, "type": "jumbo" },
+  "prizes": [
+    { "name": "1等", "type": "exact", "group": "110", "number": "106348", "amount": 700000000 },
+
+    { "name": "2等", "type": "exact", "group": "052", "number": "151307", "amount": 10000000 },
+    { "name": "2等", "type": "exact", "group": "049", "number": "135439", "amount": 10000000 },
+    { "name": "2等", "type": "exact", "group": "139", "number": "167124", "amount": 10000000 },
+    { "name": "2等", "type": "exact", "group": "065", "number": "138164", "amount": 10000000 },
+    { "name": "2等", "type": "exact", "group": "060", "number": "122015", "amount": 10000000 },
+    { "name": "2等", "type": "exact", "group": "046", "number": "116185", "amount": 10000000 },
+    { "name": "2等", "type": "exact", "group": "060", "number": "110493", "amount": 10000000 },
+    { "name": "2等", "type": "exact", "group": "084", "number": "120749", "amount": 10000000 },
+
+    { "name": "3等", "type": "common_all_groups", "number": "103265", "amount": 1000000 },
+    { "name": "3等", "type": "common_all_groups", "number": "164169", "amount": 1000000 },
+
+    { "name": "4等", "type": "last_n_digits", "n": 4, "digits": "6135", "amount": 50000 },
+    { "name": "5等", "type": "last_n_digits", "n": 3, "digits": "896", "amount": 10000 },
+    { "name": "6等", "type": "last_n_digits", "n": 2, "digits": "64", "amount": 3000 },
+    { "name": "7等", "type": "last_n_digits", "n": 1, "digits": "6", "amount": 300 }
+  ]
+}
