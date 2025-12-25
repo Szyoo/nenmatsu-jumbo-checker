@@ -1,8 +1,8 @@
 :root {
   /* Color Palette - Modern & Clean */
-  --primary: #0f766e;       /* Deep Teal */
-  --primary-light: #2dd4bf; /* Bright Teal for accents */
-  --primary-dark: #134e4a;
+  --primary: #b91c1c;       /* Festive Red */
+  --primary-light: #ef4444;
+  --primary-dark: #7f1d1d;
   
   --accent: #f59e0b;        /* Gold/Amber for luck */
   --accent-glow: rgba(245, 158, 11, 0.4);
@@ -34,9 +34,9 @@ body.theme-night {
   --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   
   --input-bg: rgba(15, 23, 42, 0.6);
-  --primary: #2dd4bf;
-  --primary-light: #5eead4;
-  --primary-dark: #115e59;
+  --primary: #f97316;
+  --primary-light: #f59e0b;
+  --primary-dark: #b45309;
 }
 
 * { box-sizing: border-box; }
@@ -405,6 +405,9 @@ body.theme-night .ambient-bg {
   text-align: center;
   white-space: nowrap;
   line-height: 1.1;
+  outline: none;
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .type-btn.is-active {
@@ -452,6 +455,9 @@ body.theme-night .ambient-bg {
   align-items: center;
   justify-content: center;
   white-space: nowrap;
+  outline: none;
+  box-shadow: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .tab-btn.is-active {
@@ -727,14 +733,14 @@ body.theme-night .result-item {
 
 .scan-box-group {
   left: 30%;
-  top: 28%;
+  top: 26%;
   width: 40%;
   height: 18%;
 }
 
 .scan-box-number {
   left: 24%;
-  top: 52%;
+  top: 54%;
   width: 52%;
   height: 20%;
 }
