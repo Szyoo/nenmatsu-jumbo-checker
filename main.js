@@ -201,12 +201,19 @@ const I18N = {
     export_copy: "コピー",
     export_paste: "貼り付け",
     export_apply: "適用",
+    export_qr: "QR",
     export_empty: "書き出す番号がありません",
     export_no_code: "生成したテキストがありません",
     export_invalid: "無効なテキストです",
     export_copied: "書き出しテキストをコピーしました",
     export_paste_failed: "貼り付けできませんでした",
     export_restored: "リストを復元しました",
+    qr_title: "共有QRコード",
+    qr_save: "画像を保存",
+    qr_fail: "QRコード生成に失敗しました",
+    qr_saved: "画像を保存しました",
+    qr_copy: "リンクをコピー",
+    qr_desc: "このQRは現在のページを共有するためのものです。短いテキストが生成済み、または番号リストがある場合は import パラメータ付きのURLになります。リストが空で短いテキストも無い場合は、トップページのみのURLになります。",
     toast_copied: "コピーしました",
     toast_pasted: "貼り付けました",
     toast_added: "{count}件追加しました",
@@ -315,12 +322,19 @@ const I18N = {
     export_copy: "复制",
     export_paste: "粘贴",
     export_apply: "应用",
+    export_qr: "二维码",
     export_empty: "暂无可导出的号码",
     export_no_code: "还没有生成文本",
     export_invalid: "文本无效，无法还原",
     export_copied: "已复制导出文本",
     export_paste_failed: "粘贴失败",
     export_restored: "已还原列表",
+    qr_title: "分享二维码",
+    qr_save: "保存图片",
+    qr_fail: "二维码生成失败",
+    qr_saved: "已保存图片",
+    qr_copy: "复制链接",
+    qr_desc: "此二维码用于分享当前网站。若已生成短文本或已有号码列表，会生成带 import 参数的链接，扫码后可直接还原列表。若列表为空且未生成短文本，则仅分享主页链接，不带参数。",
     toast_copied: "已复制",
     toast_pasted: "已粘贴",
     toast_added: "已追加 {count} 个",
@@ -429,12 +443,19 @@ const I18N = {
     export_copy: "Copy",
     export_paste: "Paste",
     export_apply: "Apply",
+    export_qr: "QR",
     export_empty: "No entries to export",
     export_no_code: "No generated code yet",
     export_invalid: "Invalid code",
     export_copied: "Export code copied",
     export_paste_failed: "Paste failed",
     export_restored: "List restored",
+    qr_title: "Share QR Code",
+    qr_save: "Save Image",
+    qr_fail: "Failed to generate QR code",
+    qr_saved: "Image saved",
+    qr_copy: "Copy link",
+    qr_desc: "This QR shares the current site. If a short code is generated or entries exist, the link includes an import parameter so the list can be restored after scanning. If no entries and no code, it shares the base homepage URL.",
     toast_copied: "Copied",
     toast_pasted: "Pasted",
     toast_added: "Added {count}",
@@ -673,6 +694,21 @@ function setupRoundSwitch() {
 
 setupRoundSwitch();
 
+function importFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const code = params.get("import");
+  if (!code) return;
+  const items = decodeEntries(code);
+  if (!items || items.length === 0) return;
+  entries.splice(0, entries.length);
+  addEntries(items);
+  resetResultView();
+  renderEntryList();
+  showToast(t("toast_applied"));
+}
+
+importFromUrl();
+
 function getBuyType() {
   const active = document.querySelector(".tab-btn.is-active");
   return active ? active.dataset.buy : "bara";
@@ -756,6 +792,25 @@ function decodeEntries(token) {
     items.push({ group, number });
   }
   return items;
+}
+
+const SHARE_BASE_URL = "https://szyoo.github.io/nenmatsu-jumbo-checker/";
+let qrInstance = null;
+
+function buildShareUrl(code) {
+  return `${SHARE_BASE_URL}?import=${encodeURIComponent(code)}`;
+}
+
+function getShareCode() {
+  const input = document.getElementById("exportText");
+  const current = String(input?.value || "").trim();
+  if (current) return current;
+  if (entries.length > 0) {
+    const generated = encodeEntries(entries);
+    if (input) input.value = generated;
+    return generated;
+  }
+  return "";
 }
 
 function renderEntryList() {
@@ -1147,6 +1202,113 @@ document.getElementById("exportApply")?.addEventListener("click", () => {
   resetResultView();
   renderEntryList();
   showToast(t("toast_applied"));
+});
+
+document.getElementById("exportQr")?.addEventListener("click", async () => {
+  const input = document.getElementById("exportText");
+  if (!input) return;
+  let url = SHARE_BASE_URL;
+  const hadCode = Boolean(String(input.value || "").trim());
+  const code = getShareCode();
+  if (code) {
+    if (!hadCode && entries.length > 0) showToast(t("toast_generated"));
+    url = buildShareUrl(code);
+  }
+  const modal = document.getElementById("qrModal");
+  const canvas = document.getElementById("qrCanvas");
+  if (modal) {
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
+  }
+  const urlText = document.getElementById("qrUrlText");
+  if (urlText) urlText.textContent = url;
+  if (!canvas || !window.QRCode) {
+    showToast(t("qr_fail"));
+    return;
+  }
+  try {
+    if (qrInstance && typeof qrInstance.makeCode === "function") {
+      qrInstance.makeCode(url);
+    } else {
+      canvas.innerHTML = "";
+      qrInstance = new window.QRCode(canvas, {
+        text: url,
+        width: 240,
+        height: 240,
+        colorDark: "#111111",
+        colorLight: "#ffffff",
+        correctLevel: window.QRCode.CorrectLevel ? window.QRCode.CorrectLevel.M : 0
+      });
+    }
+  } catch {
+    showToast(t("qr_fail"));
+  }
+});
+
+document.getElementById("qrClose")?.addEventListener("click", () => {
+  const modal = document.getElementById("qrModal");
+  if (!modal) return;
+  modal.classList.remove("is-open");
+  modal.setAttribute("aria-hidden", "true");
+});
+
+document.getElementById("qrSave")?.addEventListener("click", () => {
+  const canvas = document.getElementById("qrCanvas");
+  if (!canvas) return;
+  const link = document.createElement("a");
+  link.download = "nenmatsu-jumbo-qr.png";
+  const innerCanvas = canvas.querySelector("canvas");
+  const innerImg = canvas.querySelector("img");
+  if (innerCanvas) {
+    link.href = innerCanvas.toDataURL("image/png");
+  } else if (innerImg && innerImg.src) {
+    link.href = innerImg.src;
+  } else {
+    const table = canvas.querySelector("table");
+    if (!table) {
+      showToast(t("qr_fail"));
+      return;
+    }
+    const size = 240;
+    const off = document.createElement("canvas");
+    off.width = size;
+    off.height = size;
+    const ctx = off.getContext("2d");
+    if (!ctx) {
+      showToast(t("qr_fail"));
+      return;
+    }
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, size, size);
+    const rows = Array.from(table.querySelectorAll("tr"));
+    const count = rows.length || 1;
+    const cellSize = size / count;
+    rows.forEach((row, r) => {
+      const cells = Array.from(row.querySelectorAll("td"));
+      cells.forEach((cell, c) => {
+        const color = cell.style.backgroundColor || cell.style.background || "";
+        if (color && color !== "transparent") {
+          ctx.fillStyle = color;
+          ctx.fillRect(c * cellSize, r * cellSize, Math.ceil(cellSize), Math.ceil(cellSize));
+        }
+      });
+    });
+    link.href = off.toDataURL("image/png");
+  }
+  link.click();
+  showToast(t("qr_saved"));
+});
+
+document.getElementById("qrUrlCopy")?.addEventListener("click", async () => {
+  const urlText = document.getElementById("qrUrlText");
+  const text = String(urlText?.textContent || "").trim();
+  if (!text) return;
+  try {
+    await navigator.clipboard?.writeText(text);
+    showToast(t("toast_copied"));
+  } catch {
+    showToast(t("export_paste_failed"));
+  }
 });
 
 document.getElementById("sortBtn")?.addEventListener("click", () => {
