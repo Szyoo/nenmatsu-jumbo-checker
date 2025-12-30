@@ -110,6 +110,22 @@
       </div>
 
       <div class="result-area">
+        <div class="export-row">
+          <label class="input-label" data-i18n="export_label">导入/导出</label>
+          <div class="export-controls">
+            <button id="exportGenerate" class="button" type="button" data-i18n="export_generate">生成</button>
+            <input id="exportText" class="modern-input export-input" type="text" data-i18n-placeholder="export_ph" placeholder="短文本..." readonly />
+            <button id="exportCopy" class="button" type="button" data-i18n="export_copy">复制</button>
+          </div>
+        </div>
+        <div class="export-row export-row-secondary">
+          <label class="input-label" data-i18n="export_label_import">导入</label>
+          <div class="export-controls">
+            <input id="exportInput" class="modern-input export-input" type="text" data-i18n-placeholder="export_input_ph" placeholder="粘贴短文本..." />
+            <button id="exportPaste" class="button" type="button" data-i18n="export_paste">粘贴</button>
+            <button id="exportApply" class="button" type="button" data-i18n="export_apply">应用</button>
+          </div>
+        </div>
         <div class="result-head">
           <h2 class="result-title" data-i18n="result_title">判定結果</h2>
           <button id="check" class="button">
@@ -209,6 +225,8 @@
       </div>
     </div>
   </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
   <script src="./main.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.5/dist/tesseract.min.js"></script>
