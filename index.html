@@ -116,6 +116,7 @@
             <button id="exportGenerate" class="button" type="button" data-i18n="export_generate">生成</button>
             <input id="exportText" class="modern-input export-input" type="text" data-i18n-placeholder="export_ph" placeholder="短文本..." readonly />
             <button id="exportCopy" class="button" type="button" data-i18n="export_copy">复制</button>
+            <button id="exportQr" class="button" type="button" data-i18n="export_qr">二维码</button>
           </div>
         </div>
         <div class="export-row export-row-secondary">
@@ -226,8 +227,29 @@
     </div>
   </div>
 
+  <div id="qrModal" class="modal qr-modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="qrTitle">
+      <div class="modal-head">
+        <h3 id="qrTitle" data-i18n="qr_title">分享二维码</h3>
+        <button id="qrClose" class="icon-btn" type="button" aria-label="close" data-i18n-aria="close_label">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="qr-desc" data-i18n="qr_desc">二维码用于分享当前列表。若已生成短文本或已有号码列表，会附带导入参数；否则为基础链接。</p>
+        <div class="qr-box">
+          <div id="qrCanvas" class="qr-canvas" aria-label="QR code"></div>
+        </div>
+        <div class="qr-url">
+          <p id="qrUrlText" class="qr-url-text"></p>
+          <button id="qrUrlCopy" class="button" type="button" data-i18n="qr_copy">复制链接</button>
+        </div>
+        <button id="qrSave" class="button" type="button" data-i18n="qr_save">保存图片</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script src="./main.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.5/dist/tesseract.min.js"></script>
 </body>
