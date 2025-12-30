@@ -61,12 +61,12 @@
             <div class="select-wrapper full-width">
               <select id="round">
                 <option value="2024_jumbo_1031" data-type="jumbo" data-year="2024" data-round="1031" data-i18n="opt_2024_jumbo">2024 年末ジャンボ（第1031回）</option>
-                <option value="2025_jumbo_1082" data-type="jumbo" data-year="2025" data-round="1082" data-i18n="opt_2025_jumbo">2025 年末ジャンボ（第1082回・模拟）</option>
-                <option value="2025_mini_1083" data-type="mini" data-year="2025" data-round="1083" data-i18n="opt_2025_mini">2025 年末ジャンボミニ（第1083回）</option>
+                <option value="2024_mini_1032" data-type="mini" data-year="2024" data-round="1032" data-i18n="opt_2024_mini">2024 年末ジャンボミニ（第1032回）</option>
               </select>
               <svg class="select-icon" width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </div>
             <button id="latest" class="button" type="button" data-i18n="latest_btn">最新へ</button>
+            <button id="showPrizes" class="button" type="button" data-i18n="show_prizes">当选号</button>
           </div>
         </div>
       </div>
@@ -100,12 +100,12 @@
 
         <div class="form-group scan-group">
           <label class="input-label" data-i18n="scan_label">拍照识别</label>
-          <button id="scan" class="button full-width scan-button" type="button" data-i18n="scan_btn">拍照识别</button>
+          <button id="scan" class="button full-width scan-button" type="button" data-i18n="scan_btn_note">拍照识别（测试中不稳定）</button>
         </div>
       </div>
 
       <div class="action-area">
-        <button id="scanMobile" class="button scan-mobile" type="button" data-i18n="scan_btn">拍照识别</button>
+        <button id="scanMobile" class="button scan-mobile" type="button" data-i18n="scan_btn_note">拍照识别（测试中不稳定）</button>
         <p class="hint-text" data-i18n="hint">入力内容は保存されません。</p>
       </div>
 
@@ -115,6 +115,21 @@
           <button id="check" class="button">
             <span data-i18n="check_btn">判定する</span>
           </button>
+          <div id="sortWrap" class="sort-wrap" aria-hidden="true">
+          <button id="sortBtn" class="button sort-button" type="button" aria-haspopup="menu" aria-expanded="false" data-i18n-aria="sort_label">
+              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M6 7h12"></path>
+                <path d="M6 12h9"></path>
+                <path d="M6 17h6"></path>
+              </svg>
+            </button>
+            <div id="sortMenu" class="sort-menu" role="menu">
+              <button type="button" data-sort="added" data-i18n="sort_added">按添加顺序</button>
+              <button type="button" data-sort="amount_desc" data-i18n="sort_amount_desc">金额从大到小</button>
+              <button type="button" data-sort="amount_asc" data-i18n="sort_amount_asc">金额从小到大</button>
+              <button type="button" data-sort="group_number" data-i18n="sort_group_number">按组和番号</button>
+            </div>
+          </div>
           <button id="clearList" class="button" type="button" data-i18n="clear_btn">リストをクリア</button>
         </div>
         <div class="result-box" aria-live="polite">
@@ -130,14 +145,14 @@
     <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="scanTitle">
       <div class="modal-head">
         <h3 id="scanTitle" data-i18n="scan_title">识别结果</h3>
-        <button id="scanClose" class="icon-btn" type="button" aria-label="close">✕</button>
+        <button id="scanClose" class="icon-btn" type="button" aria-label="close" data-i18n-aria="close_label">✕</button>
       </div>
       <div class="modal-body">
         <div class="scan-preview">
           <video id="scanVideo" autoplay playsinline></video>
           <canvas id="scanCanvas"></canvas>
-          <button id="scanCloseCam" class="scan-close" type="button" aria-label="close">✕</button>
-          <button id="scanCapture" class="scan-capture" type="button" aria-label="capture">
+          <button id="scanCloseCam" class="scan-close" type="button" aria-label="close" data-i18n-aria="close_label">✕</button>
+          <button id="scanCapture" class="scan-capture" type="button" aria-label="capture" data-i18n-aria="capture_label">
             <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M4 7h3l2-2h6l2 2h3"></path>
               <rect x="3" y="7" width="18" height="14" rx="2"></rect>
@@ -146,10 +161,10 @@
           </button>
           <div class="scan-guide">
             <div class="scan-box scan-box-group">
-              <span data-i18n="scan_guide_group">XX組</span>
+              <span data-i18n="scan_guide_group">123組</span>
             </div>
             <div class="scan-box scan-box-number">
-              <span data-i18n="scan_guide_number">番号</span>
+              <span data-i18n="scan_guide_number">123456</span>
             </div>
           </div>
         </div>
@@ -168,7 +183,7 @@
           <p id="scanStatus" class="scan-status">--</p>
           <div class="scan-debug">
             <div class="scan-debug-head">
-              <p class="scan-debug-title">OCR RAW</p>
+              <p class="scan-debug-title" data-i18n="scan_raw_title">OCR RAW</p>
               <button id="scanCopy" class="button" type="button" data-i18n="scan_copy">复制</button>
             </div>
             <pre id="scanRaw" class="scan-raw"></pre>
@@ -178,6 +193,19 @@
       <div class="modal-actions">
         <button id="scanRetry" class="button" type="button" data-i18n="scan_retry">重新识别</button>
         <button id="scanConfirm" class="button" type="button" data-i18n="scan_confirm" disabled>确认添加</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="prizeModal" class="modal prize-modal" aria-hidden="true">
+    <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="prizeTitle">
+      <div class="modal-head">
+        <h3 id="prizeTitle" data-i18n="prize_title">当选号</h3>
+        <button id="prizeClose" class="icon-btn" type="button" aria-label="close" data-i18n-aria="close_label">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="prize-meta" id="prizeMeta"></div>
+        <ul id="prizeList" class="prize-list"></ul>
       </div>
     </div>
   </div>

@@ -474,7 +474,7 @@ body.theme-night .ambient-bg {
 
 .round-row {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr auto auto;
   gap: 12px;
   align-items: center;
 }
@@ -572,6 +572,54 @@ body.theme-night .ambient-bg {
   padding: 10px 18px;
   font-size: 14px;
   flex: 1;
+}
+
+.sort-wrap {
+  position: relative;
+  display: none;
+}
+
+.sort-wrap.is-visible {
+  display: inline-flex;
+}
+
+.sort-button {
+  padding: 10px 12px;
+  width: 40px;
+  justify-content: center;
+}
+
+.sort-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  background: var(--bg-color);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  box-shadow: var(--glass-shadow);
+  padding: 6px;
+  display: none;
+  min-width: 180px;
+  z-index: 20;
+}
+
+.sort-menu.is-open {
+  display: grid;
+  gap: 4px;
+}
+
+.sort-menu button {
+  background: transparent;
+  border: 0;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-main);
+}
+
+.sort-menu button:hover {
+  background: var(--input-bg);
 }
 .result-box {
   min-height: 160px;
@@ -688,6 +736,20 @@ body.theme-night .result-item {
   display: grid;
   grid-template-columns: 1.2fr 1fr;
   gap: 12px;
+}
+
+.prize-modal .modal-card {
+  width: min(640px, 92vw);
+}
+
+.prize-modal .modal-body {
+  grid-template-columns: 1fr;
+}
+
+.prize-modal .prize-list {
+  max-height: min(60vh, 420px);
+  overflow: auto;
+  padding-right: 4px;
 }
 
 .scan-preview {
@@ -876,6 +938,37 @@ body.theme-night .result-item {
   display: flex;
   justify-content: flex-end;
   gap: 12px;
+}
+
+.prize-meta {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.prize-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.prize-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--input-bg);
+}
+
+.prize-item .name {
+  font-weight: 600;
+}
+
+.prize-item .num {
+  font-family: var(--font-mono);
 }
 
 @media (max-width: 750px) {

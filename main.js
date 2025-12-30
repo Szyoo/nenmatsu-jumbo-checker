@@ -75,6 +75,17 @@ function checkWin(input, data) {
       }
     }
   }
+  // 3) ミニ: 前後賞（当选番号以1等为基准自动判定）
+  if (data.meta.type === "mini") {
+    const first = data.prizes.find(x => x.name === "1等" && x.type === "mini_exact");
+    if (first) {
+      const glast = g.slice(-1);
+      const firstNum = pad6(first.number);
+      if (glast === String(first.group_last_digit) && adjacentJumbo(num, firstNum)) {
+        hits.push({ name: "前後賞", amount: 10000000, note: "1等番号の前後（組末位一致）" });
+      }
+    }
+  }
 
   // 金额只取最高奖（重叠当选时不累加）
   const total = hits.reduce((max, x) => Math.max(max, Number(x.amount) || 0), 0);
@@ -85,6 +96,35 @@ function checkWin(input, data) {
 function yen(n) {
   try { return new Intl.NumberFormat("ja-JP").format(n) + "円"; }
   catch { return String(n) + "円"; }
+}
+
+function formatTemplate(key, vars) {
+  return t(key).replace(/\{(\w+)\}/g, (_, k) => (vars && k in vars ? vars[k] : ""));
+}
+
+function formatGroupNumber(group, number) {
+  const groupPart = `${t("group_prefix")}${group}${t("group_suffix")}`.trim();
+  const numberPart = `${t("number_prefix")}${number}`.trim();
+  return [groupPart, numberPart].filter(Boolean).join(" ");
+}
+
+const prizeNameMap = {
+  "1等": "prize_rank_1",
+  "2等": "prize_rank_2",
+  "3等": "prize_rank_3",
+  "4等": "prize_rank_4",
+  "5等": "prize_rank_5",
+  "6等": "prize_rank_6",
+  "7等": "prize_rank_7",
+  "前後賞": "prize_adjacent",
+  "1等の前後賞": "prize_adjacent",
+  "組違い賞": "prize_group_diff",
+  "1等の組違い賞": "prize_group_diff"
+};
+
+function translatePrizeName(name) {
+  const key = prizeNameMap[name];
+  return key ? t(key) : name;
 }
 
 const I18N = {
@@ -107,20 +147,52 @@ const I18N = {
     buy_hint: "連番は組と連番内の任意番号（6桁）を入力すると、10連番を自動追加します。",
     add_label: "追加",
     opt_2024_jumbo: "2024年 第1031回",
-    opt_2025_jumbo: "2025年 第1082回（模拟）",
-    opt_2025_mini: "2025年 第1083回",
+    opt_2024_mini: "2024年 第1032回",
     latest_btn: "最新へ",
     add_btn: "追加する",
-    scan_btn: "拍照识别",
-    scan_label: "拍照识别",
-    scan_title: "识别结果",
-    scan_tip: "请对准票面中的组和号",
-    scan_loading: "识别中...",
+    scan_btn: "撮影認識",
+    sort_added: "追加順",
+    sort_amount_desc: "金額：高→低",
+    sort_amount_asc: "金額：低→高",
+    sort_group_number: "組・番号順",
+    show_prizes: "当せん番号",
+    prize_title: "当せん番号",
+    scan_btn_note: "撮影認識（テスト中・不安定）",
+    scan_label: "撮影認識",
+    scan_title: "認識結果",
+    scan_tip: "票面の組と番号を合わせてください",
+    scan_loading: "認識中...",
+    scan_ok: "認識成功",
     scan_guide_group: "123組",
     scan_guide_number: "123456",
-    scan_copy: "复制",
-    scan_retry: "重新识别",
-    scan_confirm: "确认添加",
+    scan_upload: "画像をアップロード",
+    scan_drop: "画像をここにドロップして認識",
+    scan_raw_title: "OCR 原文",
+    scan_raw_group: "GROUP",
+    scan_raw_number: "NUMBER",
+    scan_copy: "コピー",
+    scan_retry: "再認識",
+    scan_confirm: "追加を確定",
+    prize_meta: "第{round}回 / {year}年",
+    prize_group_last: "組末位 {digit} / {number}",
+    prize_common: "各組共通 {number}",
+    prize_last_n: "下{n}桁 {digits}",
+    group_prefix: "",
+    group_suffix: "組",
+    number_prefix: "",
+    remove_label: "削除",
+    sort_label: "並び替え",
+    close_label: "閉じる",
+    capture_label: "撮影",
+    prize_rank_1: "1等",
+    prize_rank_2: "2等",
+    prize_rank_3: "3等",
+    prize_rank_4: "4等",
+    prize_rank_5: "5等",
+    prize_rank_6: "6等",
+    prize_rank_7: "7等",
+    prize_adjacent: "前後賞",
+    prize_group_diff: "組違い賞",
     group_label: "組",
     number_label: "番号（6桁）",
     group_ph: "例: 110",
@@ -167,20 +239,52 @@ const I18N = {
     buy_hint: "连号输入组号与连号内任意号码（6位），自动追加整组10连号。",
     add_label: "追加",
     opt_2024_jumbo: "2024年 第1031回",
-    opt_2025_jumbo: "2025年 第1082回（模拟）",
-    opt_2025_mini: "2025年 第1083回",
+    opt_2024_mini: "2024年 第1032回",
     latest_btn: "最新",
     add_btn: "追加",
     scan_btn: "拍照识别",
+    sort_added: "按添加顺序",
+    sort_amount_desc: "金额从大到小",
+    sort_amount_asc: "金额从小到大",
+    sort_group_number: "按组和番号",
+    show_prizes: "当选号",
+    prize_title: "当选号",
+    scan_btn_note: "拍照识别（测试中不稳定）",
     scan_label: "拍照识别",
     scan_title: "识别结果",
     scan_tip: "请对准票面中的组和号",
     scan_loading: "识别中...",
+    scan_ok: "识别成功",
     scan_guide_group: "123組",
     scan_guide_number: "123456",
+    scan_upload: "上传图片",
+    scan_drop: "拖拽图片到这里识别",
+    scan_raw_title: "OCR 原文",
+    scan_raw_group: "GROUP",
+    scan_raw_number: "NUMBER",
     scan_copy: "复制",
     scan_retry: "重新识别",
     scan_confirm: "确认添加",
+    prize_meta: "第{round}回 / {year}",
+    prize_group_last: "组末位 {digit} / {number}",
+    prize_common: "各组共通 {number}",
+    prize_last_n: "后{n}位 {digits}",
+    group_prefix: "",
+    group_suffix: "组",
+    number_prefix: "",
+    remove_label: "删除",
+    sort_label: "排序",
+    close_label: "关闭",
+    capture_label: "拍照",
+    prize_rank_1: "一等奖",
+    prize_rank_2: "二等奖",
+    prize_rank_3: "三等奖",
+    prize_rank_4: "四等奖",
+    prize_rank_5: "五等奖",
+    prize_rank_6: "六等奖",
+    prize_rank_7: "七等奖",
+    prize_adjacent: "前后奖",
+    prize_group_diff: "组别不同奖",
     group_label: "组",
     number_label: "号码（6位）",
     group_ph: "例: 110",
@@ -227,20 +331,52 @@ const I18N = {
     buy_hint: "Consecutive: enter group and any 6-digit number in the set to add all 10 numbers.",
     add_label: "Add",
     opt_2024_jumbo: "2024 · Round 1031",
-    opt_2025_jumbo: "2025 · Round 1082 (mock)",
-    opt_2025_mini: "2025 · Round 1083",
+    opt_2024_mini: "2024 · Round 1032",
     latest_btn: "Latest",
     add_btn: "Add",
     scan_btn: "Scan",
+    scan_btn_note: "Scan (beta, unstable)",
+    sort_added: "Added order",
+    sort_amount_desc: "Amount (high → low)",
+    sort_amount_asc: "Amount (low → high)",
+    sort_group_number: "Group & Number",
+    show_prizes: "Winning Numbers",
+    prize_title: "Winning Numbers",
     scan_label: "Scan",
     scan_title: "Scan Result",
     scan_tip: "Align the group and number on your ticket",
     scan_loading: "Scanning...",
+    scan_ok: "Scan complete",
     scan_guide_group: "123組",
     scan_guide_number: "123456",
+    scan_upload: "Upload image",
+    scan_drop: "Drop an image here to scan",
+    scan_raw_title: "OCR Raw",
+    scan_raw_group: "GROUP",
+    scan_raw_number: "NUMBER",
     scan_copy: "Copy",
     scan_retry: "Rescan",
     scan_confirm: "Add",
+    prize_meta: "Round {round} / {year}",
+    prize_group_last: "Group last digit {digit} / {number}",
+    prize_common: "All groups {number}",
+    prize_last_n: "Last {n} digits {digits}",
+    group_prefix: "G",
+    group_suffix: "",
+    number_prefix: "#",
+    remove_label: "Remove",
+    sort_label: "Sort",
+    close_label: "Close",
+    capture_label: "Capture",
+    prize_rank_1: "1st Prize",
+    prize_rank_2: "2nd Prize",
+    prize_rank_3: "3rd Prize",
+    prize_rank_4: "4th Prize",
+    prize_rank_5: "5th Prize",
+    prize_rank_6: "6th Prize",
+    prize_rank_7: "7th Prize",
+    prize_adjacent: "Adjacent Prize",
+    prize_group_diff: "Different Group Prize",
     group_label: "Group",
     number_label: "Number (6 digits)",
     group_ph: "e.g. 110",
@@ -271,6 +407,9 @@ const I18N = {
 };
 
 let currentLang = "zh";
+let currentSort = "added";
+let lastResults = null;
+const entries = [];
 
 function t(key) {
   return (I18N[currentLang] && I18N[currentLang][key]) || I18N.ja[key] || "";
@@ -289,8 +428,27 @@ function applyI18n(lang) {
     const k = el.getAttribute("data-i18n-placeholder");
     el.setAttribute("placeholder", t(k));
   });
+  document.querySelectorAll("[data-i18n-aria]").forEach(el => {
+    const k = el.getAttribute("data-i18n-aria");
+    if (k) el.setAttribute("aria-label", t(k));
+  });
+  document.querySelectorAll("[data-i18n-title]").forEach(el => {
+    const k = el.getAttribute("data-i18n-title");
+    if (k) el.setAttribute("title", t(k));
+  });
+  const scanBtn = document.getElementById("scan");
+  const scanMobile = document.getElementById("scanMobile");
+  if (scanBtn) scanBtn.textContent = t("scan_btn_note");
+  if (scanMobile) scanMobile.textContent = t("scan_btn_note");
+  const scanPreview = document.querySelector(".scan-preview");
+  if (scanPreview) scanPreview.dataset.drop = t("scan_drop");
   updateLangIndicator();
   updateThemeButton(document.body.classList.contains("theme-night"));
+  if (lastResults) {
+    renderResultList(lastResults);
+  } else {
+    renderEntryList();
+  }
 }
 
 function applyTheme(isNight) {
@@ -436,8 +594,6 @@ function setupRoundSwitch() {
 
 setupRoundSwitch();
 
-const entries = [];
-
 function getBuyType() {
   const active = document.querySelector(".tab-btn.is-active");
   return active ? active.dataset.buy : "bara";
@@ -479,32 +635,81 @@ function addEntries(newItems) {
   });
 }
 
+function renderEntryList() {
+  const totalEl = document.getElementById("resultTotal");
+  const listEl = document.getElementById("resultList");
+  if (!listEl || !totalEl) return;
+  if (entries.length === 0) {
+    totalEl.textContent = t("empty_list");
+    listEl.innerHTML = "";
+    return;
+  }
+  totalEl.textContent = t("added_count").replace("{count}", String(entries.length));
+  listEl.innerHTML = entries.map(e => `
+      <li class="result-item" data-key="${e.group}-${e.number}">
+        <span class="badge">📌</span>
+        <span>${formatGroupNumber(e.group, e.number)}</span>
+        <button class="remove" type="button" aria-label="${t("remove_label")}">✕</button>
+      </li>
+    `).join("");
+}
+
 function renderResultList(results = []) {
   const totalEl = document.getElementById("resultTotal");
   const listEl = document.getElementById("resultList");
+  const sortWrap = document.getElementById("sortWrap");
   if (!totalEl || !listEl) return;
 
   if (results.length === 0) {
     totalEl.textContent = t("empty_list");
     listEl.innerHTML = "";
+    if (sortWrap) {
+      sortWrap.classList.remove("is-visible");
+      sortWrap.setAttribute("aria-hidden", "true");
+    }
     return;
   }
 
+  lastResults = results;
+  if (sortWrap) {
+    sortWrap.classList.add("is-visible");
+    sortWrap.setAttribute("aria-hidden", "false");
+  }
+
+  const display = sortResults(results, currentSort);
   const total = results.reduce((sum, r) => sum + r.total, 0);
   totalEl.textContent = `${t("total")}: ${yen(total)}`;
   if (total > 0) triggerFireworks(getBestRank(results));
-  listEl.innerHTML = results.map(r => {
+  listEl.innerHTML = display.map(r => {
     const emoji = r.total > 0 ? "🎉" : "❌";
-    const amount = r.total > 0 ? yen(r.total) : "0円";
+    const amount = r.total > 0 ? yen(r.total) : yen(0);
     return `
       <li class="result-item" data-key="${r.group}-${r.number}">
         <span class="badge">${emoji}</span>
-        <span>${r.group}組 ${r.number}</span>
+        <span>${formatGroupNumber(r.group, r.number)}</span>
         <span class="amount">${amount}</span>
-        <button class="remove" type="button" aria-label="remove">✕</button>
+        <button class="remove" type="button" aria-label="${t("remove_label")}">✕</button>
       </li>
     `;
   }).join("");
+}
+
+function sortResults(results, sortKey) {
+  const arr = [...results];
+  if (sortKey === "amount_desc") {
+    return arr.sort((a, b) => b.total - a.total);
+  }
+  if (sortKey === "amount_asc") {
+    return arr.sort((a, b) => a.total - b.total);
+  }
+  if (sortKey === "group_number") {
+    return arr.sort((a, b) => {
+      const g = Number(a.group) - Number(b.group);
+      if (g !== 0) return g;
+      return Number(a.number) - Number(b.number);
+    });
+  }
+  return arr;
 }
 
 function setupBuyTabs() {
@@ -640,18 +845,29 @@ async function runOcr() {
     return c;
   }
 
-  const groupRect = {
+  function insetRect(rect, padRatio = 0.08) {
+    const padX = Math.floor(rect.w * padRatio);
+    const padY = Math.floor(rect.h * padRatio);
+    return {
+      x: rect.x + padX,
+      y: rect.y + padY,
+      w: rect.w - padX * 2,
+      h: rect.h - padY * 2
+    };
+  }
+
+  const groupRect = insetRect({
     x: Math.floor(w * 0.30),
     y: Math.floor(h * 0.26),
     w: Math.floor(w * 0.40),
     h: Math.floor(h * 0.18)
-  };
-  const numberRect = {
+  });
+  const numberRect = insetRect({
     x: Math.floor(w * 0.24),
     y: Math.floor(h * 0.54),
     w: Math.floor(w * 0.52),
     h: Math.floor(h * 0.20)
-  };
+  });
   const groupCrop = makeCrop(groupRect.x, groupRect.y, groupRect.w, groupRect.h);
   const numberCrop = makeCrop(numberRect.x, numberRect.y, numberRect.w, numberRect.h);
   if (!groupCrop || !numberCrop) return;
@@ -675,24 +891,26 @@ async function runOcr() {
     });
     const groupRaw = (groupRes.data.text || "").trim();
     const numberRaw = (numberRes.data.text || "").trim();
-    if (rawEl) rawEl.textContent = `GROUP:\n${groupRaw}\n\nNUMBER:\n${numberRaw}`.trim();
-    const groupText = groupRaw.replace(/\s/g, "").replace(/[^0-9組]/g, "");
-    const numberText = numberRaw.replace(/\s/g, "").replace(/[^0-9]/g, "");
+    if (rawEl) {
+      rawEl.textContent = `${t("scan_raw_group")}:\n${groupRaw}\n\n${t("scan_raw_number")}:\n${numberRaw}`.trim();
+    }
+    const groupText = groupRaw.replace(/[^0-9組]/g, " ");
+    const numberText = numberRaw.replace(/[^0-9]/g, " ");
 
-    const groupMatch = groupText.match(/(\d{1,3})組/);
+    const groupMatch = groupText.match(/(\d{1,3})\s*組/);
     let group = groupMatch ? groupMatch[1].padStart(3, "0") : "";
     if (!group) {
       const digitGroups = (groupText.match(/\d+/g) || []).filter(x => x.length <= 3);
       if (digitGroups.length) group = digitGroups[digitGroups.length - 1].padStart(3, "0");
     }
-    const numMatches = numberText.match(/(\d{6})/g) || [];
-    const number = numMatches.length ? numMatches[numMatches.length - 1] : "";
+    const numCandidates = (numberText.match(/\d{6,}/g) || []);
+    const number = numCandidates.length ? numCandidates[0].slice(0, 6) : "";
     scanState.group = group;
     scanState.number = number;
     groupEl.value = group || "";
     numberEl.value = number || "";
     const ok = Boolean(groupEl.value && numberEl.value);
-    status.textContent = ok ? "OK" : t("scan_tip");
+    status.textContent = ok ? t("scan_ok") : t("scan_tip");
     updateScanConfirm();
     if (modal) modal.classList.add("show-result");
   } catch (e) {
@@ -730,13 +948,7 @@ document.getElementById("scanConfirm").addEventListener("click", () => {
   addEntries(buildEntries(scanState.group, scanState.number, getBuyType()));
   const listEl = document.getElementById("resultList");
   if (listEl) {
-    listEl.innerHTML = entries.map(e => `
-      <li class="result-item" data-key="${e.group}-${e.number}">
-        <span class="badge">📌</span>
-        <span>${e.group}組 ${e.number}</span>
-        <button class="remove" type="button" aria-label="remove">✕</button>
-      </li>
-    `).join("");
+    renderEntryList();
   }
   closeScanModal();
 });
@@ -747,6 +959,79 @@ document.getElementById("scanCopy").addEventListener("click", () => {
   const text = rawEl.textContent || "";
   if (!text.trim()) return;
   navigator.clipboard?.writeText(text);
+});
+
+document.getElementById("sortBtn")?.addEventListener("click", () => {
+  const menu = document.getElementById("sortMenu");
+  const btn = document.getElementById("sortBtn");
+  if (!menu || !btn) return;
+  const open = menu.classList.toggle("is-open");
+  btn.setAttribute("aria-expanded", String(open));
+});
+
+document.getElementById("sortMenu")?.addEventListener("click", (e) => {
+  const item = e.target.closest("button[data-sort]");
+  if (!item) return;
+  currentSort = item.dataset.sort;
+  const menu = document.getElementById("sortMenu");
+  const btn = document.getElementById("sortBtn");
+  if (menu) menu.classList.remove("is-open");
+  if (btn) btn.setAttribute("aria-expanded", "false");
+  if (lastResults) renderResultList(lastResults);
+});
+
+document.addEventListener("click", (e) => {
+  const menu = document.getElementById("sortMenu");
+  const btn = document.getElementById("sortBtn");
+  if (!menu || !btn) return;
+  if (menu.contains(e.target) || btn.contains(e.target)) return;
+  menu.classList.remove("is-open");
+  btn.setAttribute("aria-expanded", "false");
+});
+
+document.getElementById("showPrizes")?.addEventListener("click", async () => {
+  const modal = document.getElementById("prizeModal");
+  const listEl = document.getElementById("prizeList");
+  const metaEl = document.getElementById("prizeMeta");
+  if (!modal || !listEl || !metaEl) return;
+  modal.classList.add("is-open");
+  modal.setAttribute("aria-hidden", "false");
+  listEl.innerHTML = "";
+  metaEl.textContent = "";
+
+  try {
+    const key = document.getElementById("round").value;
+    const data = await loadData(key);
+    metaEl.textContent = formatTemplate("prize_meta", { round: data.meta.round, year: data.meta.year });
+    listEl.innerHTML = data.prizes.map(p => {
+      let num = "";
+      if (p.type === "exact") num = formatGroupNumber(p.group, p.number);
+      else if (p.type === "mini_exact") {
+        num = formatTemplate("prize_group_last", { digit: p.group_last_digit, number: p.number });
+      } else if (p.type === "common_all_groups") {
+        num = formatTemplate("prize_common", { number: p.number });
+      } else if (p.type === "last_n_digits") {
+        num = formatTemplate("prize_last_n", { n: p.n, digits: p.digits });
+      }
+      else num = p.number || "";
+      return `
+        <li class="prize-item">
+          <span class="name">${translatePrizeName(p.name)}</span>
+          <span class="num">${num}</span>
+          <span>${yen(p.amount)}</span>
+        </li>
+      `;
+    }).join("");
+  } catch (e) {
+    metaEl.textContent = `${t("error_prefix")}: ${e.message || e}`;
+  }
+});
+
+document.getElementById("prizeClose")?.addEventListener("click", () => {
+  const modal = document.getElementById("prizeModal");
+  if (!modal) return;
+  modal.classList.remove("is-open");
+  modal.setAttribute("aria-hidden", "true");
 });
 document.getElementById("add").addEventListener("click", () => {
   const groupInput = document.getElementById("group");
@@ -773,13 +1058,7 @@ document.getElementById("add").addEventListener("click", () => {
     totalEl.textContent = t("added_count").replace("{count}", String(items.length));
   }
   if (listEl) {
-    listEl.innerHTML = entries.map(e => `
-      <li class="result-item" data-key="${e.group}-${e.number}">
-        <span class="badge">📌</span>
-        <span>${e.group}組 ${e.number}</span>
-        <button class="remove" type="button" aria-label="remove">✕</button>
-      </li>
-    `).join("");
+    renderEntryList();
   }
 
   groupInput.value = "";
@@ -831,13 +1110,7 @@ document.getElementById("resultList").addEventListener("click", (e) => {
   if (totalEl) totalEl.textContent = t("added_count").replace("{count}", String(entries.length));
   const listEl = document.getElementById("resultList");
   if (listEl) {
-    listEl.innerHTML = entries.map(en => `
-      <li class="result-item" data-key="${en.group}-${en.number}">
-        <span class="badge">📌</span>
-        <span>${en.group}組 ${en.number}</span>
-        <button class="remove" type="button" aria-label="remove">✕</button>
-      </li>
-    `).join("");
+    renderEntryList();
   }
 });
 
@@ -845,8 +1118,14 @@ document.getElementById("clearList").addEventListener("click", () => {
   entries.splice(0, entries.length);
   const totalEl = document.getElementById("resultTotal");
   const listEl = document.getElementById("resultList");
+  const sortWrap = document.getElementById("sortWrap");
+  lastResults = null;
   if (totalEl) totalEl.textContent = t("empty_list");
   if (listEl) listEl.innerHTML = "";
+  if (sortWrap) {
+    sortWrap.classList.remove("is-visible");
+    sortWrap.setAttribute("aria-hidden", "true");
+  }
 });
 
 let fwRunning = false;
