@@ -94,8 +94,25 @@ function checkWin(input, data) {
 }
 
 function yen(n) {
-  try { return new Intl.NumberFormat("ja-JP").format(n) + "円"; }
-  catch { return String(n) + "円"; }
+  try {
+    if (currentLang === "en") {
+      return "¥" + new Intl.NumberFormat("en-US").format(n);
+    }
+    return new Intl.NumberFormat("ja-JP").format(n) + "円";
+  } catch {
+    return currentLang === "en" ? "¥" + String(n) : String(n) + "円";
+  }
+}
+
+function formatWinAmountParts(n) {
+  const number = Number(n) || 0;
+  const formatted = currentLang === "en"
+    ? new Intl.NumberFormat("en-US").format(number)
+    : new Intl.NumberFormat("ja-JP").format(number);
+  if (currentLang === "en") {
+    return { prefix: "¥", number: formatted, suffix: "" };
+  }
+  return { prefix: "", number: formatted, suffix: "円" };
 }
 
 function formatTemplate(key, vars) {
@@ -141,6 +158,10 @@ const I18N = {
     type_label: "種類",
     type_jumbo: "年末ジャンボ",
     type_mini: "年末ジャンボミニ",
+    section_round: "回号と種別",
+    section_input: "購入・入力",
+    section_share: "導入・共有",
+    section_result: "判定結果",
     buy_label: "購入タイプ",
     buy_bara: "バラ",
     buy_renban: "連番",
@@ -214,6 +235,14 @@ const I18N = {
     qr_saved: "画像を保存しました",
     qr_copy: "リンクをコピー",
     qr_desc: "このQRは現在のページを共有するためのものです。短いテキストが生成済み、または番号リストがある場合は import パラメータ付きのURLになります。リストが空で短いテキストも無い場合は、トップページのみのURLになります。",
+    win_title: "おめでとう",
+    win_line: "{name} ×{count}",
+    win_unit_yi: "億",
+    win_unit_wan: "万",
+    win_unit_qian: "千",
+    win_unit_bai: "百",
+    win_unit_shi: "十",
+    win_unit_ge: "一",
     toast_copied: "コピーしました",
     toast_pasted: "貼り付けました",
     toast_added: "{count}件追加しました",
@@ -230,6 +259,7 @@ const I18N = {
     hint: "入力内容は保存されません。",
     result_title: "判定結果",
     result_desc: "複数当せん時はすべて表示されます。",
+    result_note: "結果は参考用です。最終的には販売店のスキャン結果をご確認ください。",
     footer_note: "毎年、当せん番号発表後に data/*.json を手動更新してください。",
     theme_day: "白昼",
     theme_night: "夜",
@@ -262,6 +292,10 @@ const I18N = {
     type_label: "类型",
     type_jumbo: "年末ジャンボ",
     type_mini: "年末ジャンボミニ",
+    section_round: "回号与种类",
+    section_input: "购买与输入",
+    section_share: "导入与分享",
+    section_result: "判定结果",
     buy_label: "购买方式",
     buy_bara: "散买",
     buy_renban: "连号",
@@ -335,6 +369,14 @@ const I18N = {
     qr_saved: "已保存图片",
     qr_copy: "复制链接",
     qr_desc: "此二维码用于分享当前网站。若已生成短文本或已有号码列表，会生成带 import 参数的链接，扫码后可直接还原列表。若列表为空且未生成短文本，则仅分享主页链接，不带参数。",
+    win_title: "恭喜中奖",
+    win_line: "{name} ×{count}",
+    win_unit_yi: "亿",
+    win_unit_wan: "万",
+    win_unit_qian: "千",
+    win_unit_bai: "百",
+    win_unit_shi: "十",
+    win_unit_ge: "个",
     toast_copied: "已复制",
     toast_pasted: "已粘贴",
     toast_added: "已追加 {count} 个",
@@ -351,6 +393,7 @@ const I18N = {
     hint: "输入内容不会被保存。",
     result_title: "判定结果",
     result_desc: "如同时中奖，将全部显示。",
+    result_note: "结果仅供参考，以实际彩票站扫码结果为准。",
     footer_note: "每年官方公布后请手动更新 data/*.json。",
     theme_day: "白昼",
     theme_night: "夜间",
@@ -383,6 +426,10 @@ const I18N = {
     type_label: "Type",
     type_jumbo: "Jumbo",
     type_mini: "Mini Jumbo",
+    section_round: "Round & Type",
+    section_input: "Entry & Scan",
+    section_share: "Import & Share",
+    section_result: "Results",
     buy_label: "Purchase",
     buy_bara: "Single",
     buy_renban: "Consecutive",
@@ -456,6 +503,14 @@ const I18N = {
     qr_saved: "Image saved",
     qr_copy: "Copy link",
     qr_desc: "This QR shares the current site. If a short code is generated or entries exist, the link includes an import parameter so the list can be restored after scanning. If no entries and no code, it shares the base homepage URL.",
+    win_title: "Congratulations",
+    win_line: "{name} ×{count}",
+    win_unit_yi: "",
+    win_unit_wan: "",
+    win_unit_qian: "",
+    win_unit_bai: "",
+    win_unit_shi: "",
+    win_unit_ge: "",
     toast_copied: "Copied",
     toast_pasted: "Pasted",
     toast_added: "Added {count}",
@@ -472,6 +527,7 @@ const I18N = {
     hint: "Your inputs are not stored.",
     result_title: "Result",
     result_desc: "All matching prizes will be shown.",
+    result_note: "Results are for reference only; please rely on the official scan at the lottery counter.",
     footer_note: "Update data/*.json after official results are announced.",
     theme_day: "Day",
     theme_night: "Night",
@@ -498,6 +554,9 @@ let currentSort = "added";
 let lastResults = null;
 const entries = [];
 let toastTimer = null;
+let winTimer = null;
+let winActive = false;
+let winStageTimer = null;
 
 function showToast(message) {
   const toast = document.getElementById("toast");
@@ -509,6 +568,85 @@ function showToast(message) {
     toast.classList.remove("is-visible");
   }, 1800);
 }
+
+function showWinOverlay(total, results, bestRank) {
+  const overlay = document.getElementById("winOverlay");
+  const amountEl = document.getElementById("winAmount");
+  const breakdownEl = document.getElementById("winBreakdown");
+  const unitsEl = document.getElementById("winUnits");
+  const titleEl = document.querySelector(".win-title");
+  const tableEl = document.getElementById("winTable");
+  if (!overlay || !amountEl) return;
+  const amountParts = formatWinAmountParts(total);
+  const digits = String(Math.floor(total));
+  if (tableEl) {
+    const unitMap = {
+      8: t("win_unit_yi"),
+      4: t("win_unit_wan"),
+      3: t("win_unit_qian"),
+      2: t("win_unit_bai"),
+      1: t("win_unit_shi"),
+      0: t("win_unit_ge")
+    };
+    const unitCells = digits.split("").map((_, idx) => {
+      const pos = digits.length - 1 - idx;
+      const unit = currentLang === "en" ? "" : (unitMap[pos] || "");
+      return `<td class="win-cell unit">${unit}</td>`;
+    }).join("");
+    const digitCells = digits.split("").map(d => `<td class="win-cell">${d}</td>`).join("");
+    const prefix = amountParts.prefix ? `<td class="win-cell currency" rowspan="2">${amountParts.prefix}</td>` : "";
+    const suffix = amountParts.suffix ? `<td class="win-cell currency" rowspan="2">${amountParts.suffix}</td>` : "";
+    tableEl.innerHTML = `
+      <tbody>
+        <tr>${prefix}${unitCells}${suffix}</tr>
+        <tr>${digitCells}</tr>
+      </tbody>
+    `;
+  }
+
+  const maxWidth = window.innerWidth * 0.86;
+  const maxHeight = window.innerHeight * 0.5;
+  let size = Math.min(180, Math.max(60, window.innerWidth * 0.2));
+  amountEl.style.fontSize = `${size}px`;
+  amountEl.style.lineHeight = "1";
+
+  for (let i = 0; i < 14; i += 1) {
+    const rect = amountEl.getBoundingClientRect();
+    if (rect.width <= maxWidth && rect.height <= maxHeight) break;
+    size = Math.max(36, size - 8);
+    amountEl.style.fontSize = `${size}px`;
+  }
+  if (unitsEl) unitsEl.innerHTML = "";
+
+  if (titleEl) titleEl.textContent = t("win_title");
+  if (breakdownEl) {
+    const lines = buildWinBreakdown(results);
+    breakdownEl.innerHTML = lines.map(line => `<div>${line}</div>`).join("");
+  }
+  overlay.classList.remove("show-text");
+  overlay.classList.add("is-active");
+  overlay.setAttribute("aria-hidden", "false");
+  winActive = true;
+  if (winTimer) window.clearTimeout(winTimer);
+  if (winStageTimer) window.clearTimeout(winStageTimer);
+  winStageTimer = window.setTimeout(() => {
+    overlay.classList.add("show-text");
+    triggerFireworks(bestRank);
+  }, 650);
+}
+
+function hideWinOverlay() {
+  if (!winActive) return;
+  const overlay = document.getElementById("winOverlay");
+  if (!overlay) return;
+  overlay.classList.remove("is-active", "show-text");
+  overlay.setAttribute("aria-hidden", "true");
+  winActive = false;
+}
+
+document.addEventListener("click", () => {
+  hideWinOverlay();
+}, { capture: true });
 
 function t(key) {
   return (I18N[currentLang] && I18N[currentLang][key]) || I18N.ja[key] || "";
@@ -558,8 +696,6 @@ function applyTheme(isNight) {
 function updateThemeButton(isNight) {
   const btn = document.getElementById("theme");
   if (!btn) return;
-  const icon = btn.querySelector(".theme-icon");
-  if (icon) icon.textContent = isNight ? "🌙" : "☀";
   const label = isNight ? t("theme_night") : t("theme_day");
   btn.setAttribute("aria-pressed", String(isNight));
   btn.setAttribute("aria-label", label);
@@ -704,6 +840,8 @@ function importFromUrl() {
   addEntries(items);
   resetResultView();
   renderEntryList();
+  const input = document.getElementById("exportInput");
+  if (input) input.value = code;
   showToast(t("toast_applied"));
 }
 
@@ -865,8 +1003,15 @@ function renderResultList(results = []) {
 
   const display = sortResults(results, currentSort);
   const total = results.reduce((sum, r) => sum + r.total, 0);
+  const bestRank = getBestRank(results);
   totalEl.textContent = `${t("total")}: ${yen(total)}`;
-  if (total > 0) triggerFireworks(getBestRank(results));
+  if (total > 0) {
+    if (bestRank < 7) {
+      showWinOverlay(total, results, bestRank);
+    } else {
+      triggerFireworks(bestRank);
+    }
+  }
   listEl.innerHTML = display.map(r => {
     const emoji = r.total > 0 ? "🎉" : "❌";
     const amount = r.total > 0 ? yen(r.total) : yen(0);
@@ -874,7 +1019,7 @@ function renderResultList(results = []) {
       <li class="result-item" data-key="${r.group}-${r.number}">
         <span class="badge">${emoji}</span>
         <span>${formatGroupNumber(r.group, r.number)}</span>
-        <span class="amount">${amount}</span>
+        <span class="amount">${amount}${r.total > 0 ? ' <span class="amount-emoji">🎉</span>' : ""}</span>
         <button class="remove" type="button" aria-label="${t("remove_label")}">✕</button>
       </li>
     `;
@@ -1498,6 +1643,41 @@ function getBestRank(results) {
     });
   });
   return best === 99 ? 8 : best;
+}
+
+function getEntryRank(hits = []) {
+  let best = 99;
+  hits.forEach(h => {
+    const name = String(h.name || "");
+    if (name.includes("1等") || name.includes("前後賞")) best = Math.min(best, 1);
+    else if (name.includes("2等")) best = Math.min(best, 2);
+    else if (name.includes("3等")) best = Math.min(best, 3);
+    else if (name.includes("4等")) best = Math.min(best, 4);
+    else if (name.includes("5等")) best = Math.min(best, 5);
+    else if (name.includes("6等")) best = Math.min(best, 6);
+    else if (name.includes("7等") || name.includes("組違い賞")) best = Math.min(best, 7);
+  });
+  return best === 99 ? null : best;
+}
+
+function buildWinBreakdown(results = []) {
+  const counts = new Map();
+  results.forEach(r => {
+    if (!r.hits || r.hits.length === 0) return;
+    const rank = getEntryRank(r.hits);
+    if (!rank) return;
+    const key = `prize_rank_${rank}`;
+    counts.set(key, (counts.get(key) || 0) + 1);
+  });
+  const lines = [];
+  for (let rank = 1; rank <= 7; rank += 1) {
+    const key = `prize_rank_${rank}`;
+    const count = counts.get(key);
+    if (!count) continue;
+    const name = t(key);
+    lines.push(t("win_line").replace("{name}", name).replace("{count}", String(count)));
+  }
+  return lines;
 }
 
 function triggerFireworks(rank = 8) {

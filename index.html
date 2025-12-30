@@ -6,7 +6,7 @@
   <title>年末ジャンボ 当せんチェッカー</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Sora:wght@500;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
@@ -37,7 +37,20 @@
             </div>
         </div>
         <button id="theme" class="theme-btn" type="button" aria-label="Toggle Theme">
-          <span class="theme-icon">☀</span>
+          <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="4.5"></circle>
+            <path d="M12 2.5v3"></path>
+            <path d="M12 18.5v3"></path>
+            <path d="M2.5 12h3"></path>
+            <path d="M18.5 12h3"></path>
+            <path d="M4.6 4.6l2.2 2.2"></path>
+            <path d="M17.2 17.2l2.2 2.2"></path>
+            <path d="M19.4 4.6l-2.2 2.2"></path>
+            <path d="M6.8 17.2l-2.2 2.2"></path>
+          </svg>
+          <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 14.5a8.5 8.5 0 0 1-11.5-11 9.5 9.5 0 1 0 11.5 11z"></path>
+          </svg>
         </button>
       </div>
     </header>
@@ -45,115 +58,149 @@
 
   <main class="page">
     <section class="card-shell">
-
-
-      <div class="type-round-row">
-        <div class="form-group">
-          <label class="input-label" data-i18n="type_label">種類</label>
-          <div class="type-switch" role="group" aria-label="Ticket Type">
-            <button class="type-btn is-active" type="button" data-type="jumbo" aria-pressed="true" data-i18n="type_jumbo">年末ジャンボ</button>
-            <button class="type-btn" type="button" data-type="mini" aria-pressed="false" data-i18n="type_mini">年末ジャンボミニ</button>
-          </div>
-        </div>
-
-        <div class="form-group">
-          <div class="round-row">
-            <div class="select-wrapper full-width">
-              <select id="round">
-                <option value="2024_jumbo_1031" data-type="jumbo" data-year="2024" data-round="1031" data-i18n="opt_2024_jumbo">2024 年末ジャンボ（第1031回）</option>
-                <option value="2024_mini_1032" data-type="mini" data-year="2024" data-round="1032" data-i18n="opt_2024_mini">2024 年末ジャンボミニ（第1032回）</option>
-              </select>
-              <svg class="select-icon" width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <details class="panel" open>
+        <summary class="panel-summary">
+          <span class="panel-title" data-i18n="section_round">回号与种类</span>
+        </summary>
+        <div class="panel-content">
+          <div class="type-round-row">
+            <div class="form-group">
+              <label class="input-label" data-i18n="type_label">種類</label>
+              <div class="type-switch" role="group" aria-label="Ticket Type">
+                <button class="type-btn is-active" type="button" data-type="jumbo" aria-pressed="true" data-i18n="type_jumbo">年末ジャンボ</button>
+                <button class="type-btn" type="button" data-type="mini" aria-pressed="false" data-i18n="type_mini">年末ジャンボミニ</button>
+              </div>
             </div>
-            <button id="latest" class="button" type="button" data-i18n="latest_btn">最新へ</button>
-            <button id="showPrizes" class="button" type="button" data-i18n="show_prizes">当选号</button>
-          </div>
-        </div>
-      </div>
 
-      <div class="form-group">
-        <div class="label-row">
-          <label class="input-label" data-i18n="buy_label">購入タイプ</label>
-          <p class="helper-text" data-i18n="buy_hint" data-buy-hint>連番は組＋番号の先頭5桁を入力すると、10連番を自動追加します。</p>
-        </div>
-        <div class="tab-switch" role="group" aria-label="Purchase Type">
-          <button class="tab-btn is-active" type="button" data-buy="bara" aria-pressed="true" data-i18n="buy_bara">バラ</button>
-          <button class="tab-btn" type="button" data-buy="renban" aria-pressed="false" data-i18n="buy_renban">連番</button>
-        </div>
-      </div>
-
-      <div class="input-row">
-        <div class="form-group">
-          <label for="group" class="input-label" data-i18n="group_label">組</label>
-          <input id="group" type="text" inputmode="numeric" pattern="\\d{1,3}" maxlength="3" class="modern-input" placeholder="110" data-i18n-placeholder="group_ph" />
-        </div>
-
-        <div class="form-group">
-          <label for="number" class="input-label" data-i18n="number_label">番号</label>
-          <input id="number" type="text" inputmode="numeric" pattern="\\d{6}" maxlength="6" class="modern-input" placeholder="123456" data-i18n-placeholder="number_ph" />
-        </div>
-
-        <div class="form-group">
-          <label class="input-label" data-i18n="add_label">追加</label>
-          <button id="add" class="button full-width" type="button" data-i18n="add_btn">追加する</button>
-        </div>
-
-        <div class="form-group scan-group">
-          <label class="input-label" data-i18n="scan_label">拍照识别</label>
-          <button id="scan" class="button full-width scan-button" type="button" data-i18n="scan_btn_note">拍照识别（测试中不稳定）</button>
-        </div>
-      </div>
-
-      <div class="action-area">
-        <button id="scanMobile" class="button scan-mobile" type="button" data-i18n="scan_btn_note">拍照识别（测试中不稳定）</button>
-        <p class="hint-text" data-i18n="hint">入力内容は保存されません。</p>
-      </div>
-
-      <div class="result-area">
-        <div class="export-row">
-          <label class="input-label" data-i18n="export_label">导入/导出</label>
-          <div class="export-controls">
-            <button id="exportGenerate" class="button" type="button" data-i18n="export_generate">生成</button>
-            <input id="exportText" class="modern-input export-input" type="text" data-i18n-placeholder="export_ph" placeholder="短文本..." readonly />
-            <button id="exportCopy" class="button" type="button" data-i18n="export_copy">复制</button>
-            <button id="exportQr" class="button" type="button" data-i18n="export_qr">二维码</button>
-          </div>
-        </div>
-        <div class="export-row export-row-secondary">
-          <label class="input-label" data-i18n="export_label_import">导入</label>
-          <div class="export-controls">
-            <input id="exportInput" class="modern-input export-input" type="text" data-i18n-placeholder="export_input_ph" placeholder="粘贴短文本..." />
-            <button id="exportPaste" class="button" type="button" data-i18n="export_paste">粘贴</button>
-            <button id="exportApply" class="button" type="button" data-i18n="export_apply">应用</button>
-          </div>
-        </div>
-        <div class="result-head">
-          <h2 class="result-title" data-i18n="result_title">判定結果</h2>
-          <button id="check" class="button">
-            <span data-i18n="check_btn">判定する</span>
-          </button>
-          <div id="sortWrap" class="sort-wrap" aria-hidden="true">
-          <button id="sortBtn" class="button sort-button" type="button" aria-haspopup="menu" aria-expanded="false" data-i18n-aria="sort_label">
-              <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M6 7h12"></path>
-                <path d="M6 12h9"></path>
-                <path d="M6 17h6"></path>
-              </svg>
-            </button>
-            <div id="sortMenu" class="sort-menu" role="menu">
-              <button type="button" data-sort="added" data-i18n="sort_added">按添加顺序</button>
-              <button type="button" data-sort="amount_desc" data-i18n="sort_amount_desc">金额从大到小</button>
-              <button type="button" data-sort="amount_asc" data-i18n="sort_amount_asc">金额从小到大</button>
-              <button type="button" data-sort="group_number" data-i18n="sort_group_number">按组和番号</button>
+            <div class="form-group">
+              <div class="round-row">
+                <div class="select-wrapper full-width">
+                  <select id="round">
+                    <option value="2024_jumbo_1031" data-type="jumbo" data-year="2024" data-round="1031" data-i18n="opt_2024_jumbo">2024 年末ジャンボ（第1031回）</option>
+                    <option value="2024_mini_1032" data-type="mini" data-year="2024" data-round="1032" data-i18n="opt_2024_mini">2024 年末ジャンボミニ（第1032回）</option>
+                  </select>
+                  <svg class="select-icon" width="14" height="14" viewBox="0 0 12 12" fill="none"><path d="M2 4L6 8L10 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <button id="latest" class="button" type="button" data-i18n="latest_btn">最新へ</button>
+                <button id="showPrizes" class="button" type="button" data-i18n="show_prizes">当选号</button>
+              </div>
             </div>
           </div>
-          <button id="clearList" class="button" type="button" data-i18n="clear_btn">リストをクリア</button>
         </div>
-        <div class="result-box" aria-live="polite">
-          <div id="resultTotal" class="result-total" data-i18n="result_desc">ここに結果が表示されます</div>
-          <ul id="resultList" class="result-list"></ul>
+      </details>
+
+      <details class="panel" open>
+        <summary class="panel-summary">
+          <span class="panel-title" data-i18n="section_input">购买与输入</span>
+        </summary>
+        <div class="panel-content">
+          <div class="form-group">
+            <div class="label-row">
+              <label class="input-label" data-i18n="buy_label">購入タイプ</label>
+              <p class="helper-text" data-i18n="buy_hint" data-buy-hint>連番は組＋番号の先頭5桁を入力すると、10連番を自動追加します。</p>
+            </div>
+            <div class="tab-switch" role="group" aria-label="Purchase Type">
+              <button class="tab-btn is-active" type="button" data-buy="bara" aria-pressed="true" data-i18n="buy_bara">バラ</button>
+              <button class="tab-btn" type="button" data-buy="renban" aria-pressed="false" data-i18n="buy_renban">連番</button>
+            </div>
+          </div>
+
+          <div class="input-row">
+            <div class="form-group">
+              <label for="group" class="input-label" data-i18n="group_label">組</label>
+              <input id="group" type="text" inputmode="numeric" pattern="\\d{1,3}" maxlength="3" class="modern-input" placeholder="110" data-i18n-placeholder="group_ph" />
+            </div>
+
+            <div class="form-group">
+              <label for="number" class="input-label" data-i18n="number_label">番号</label>
+              <input id="number" type="text" inputmode="numeric" pattern="\\d{6}" maxlength="6" class="modern-input" placeholder="123456" data-i18n-placeholder="number_ph" />
+            </div>
+
+            <div class="form-group">
+              <label class="input-label" data-i18n="add_label">追加</label>
+              <button id="add" class="button full-width" type="button" data-i18n="add_btn">追加する</button>
+            </div>
+
+            <div class="form-group scan-group">
+              <label class="input-label" data-i18n="scan_label">拍照识别</label>
+              <button id="scan" class="button full-width scan-button" type="button" data-i18n="scan_btn_note">拍照识别（测试中不稳定）</button>
+            </div>
+          </div>
+
+          <div class="action-area">
+            <button id="scanMobile" class="button scan-mobile" type="button" data-i18n="scan_btn_note">拍照识别（测试中不稳定）</button>
+            <p class="hint-text" data-i18n="hint">入力内容は保存されません。</p>
+          </div>
         </div>
-      </div>
+      </details>
+
+      <details class="panel">
+        <summary class="panel-summary">
+          <span class="panel-title" data-i18n="section_share">导入与分享</span>
+        </summary>
+        <div class="panel-content">
+          <div class="result-area">
+            <div class="export-row">
+              <label class="input-label" data-i18n="export_label">导入/导出</label>
+              <div class="export-controls">
+                <button id="exportGenerate" class="button" type="button" data-i18n="export_generate">生成</button>
+                <input id="exportText" class="modern-input export-input" type="text" data-i18n-placeholder="export_ph" placeholder="短文本..." readonly />
+                <button id="exportCopy" class="button" type="button" data-i18n="export_copy">复制</button>
+                <button id="exportQr" class="button" type="button" data-i18n="export_qr">二维码</button>
+              </div>
+            </div>
+            <div class="export-row export-row-secondary">
+              <label class="input-label" data-i18n="export_label_import">导入</label>
+              <div class="export-controls">
+                <input id="exportInput" class="modern-input export-input" type="text" data-i18n-placeholder="export_input_ph" placeholder="粘贴短文本..." />
+                <button id="exportPaste" class="button" type="button" data-i18n="export_paste">粘贴</button>
+                <button id="exportApply" class="button" type="button" data-i18n="export_apply">应用</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </details>
+
+      <details class="panel" open>
+        <summary class="panel-summary">
+          <span class="panel-title" data-i18n="section_result">判定结果</span>
+        </summary>
+        <div class="panel-content">
+          <div class="result-area">
+            <div class="result-head">
+              <div class="result-main">
+                <h2 class="result-title" data-i18n="result_title">判定結果</h2>
+                <button id="check" class="button">
+                  <span data-i18n="check_btn">判定する</span>
+                </button>
+              </div>
+              <div class="result-actions">
+                <p class="result-note" data-i18n="result_note">结果仅供参考，以实际彩票站扫码结果为准。</p>
+                <div id="sortWrap" class="sort-wrap" aria-hidden="true">
+                <button id="sortBtn" class="button sort-button" type="button" aria-haspopup="menu" aria-expanded="false" data-i18n-aria="sort_label">
+                    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M6 7h12"></path>
+                      <path d="M6 12h9"></path>
+                      <path d="M6 17h6"></path>
+                    </svg>
+                  </button>
+                  <div id="sortMenu" class="sort-menu" role="menu">
+                    <button type="button" data-sort="added" data-i18n="sort_added">按添加顺序</button>
+                    <button type="button" data-sort="amount_desc" data-i18n="sort_amount_desc">金额从大到小</button>
+                    <button type="button" data-sort="amount_asc" data-i18n="sort_amount_asc">金额从小到大</button>
+                    <button type="button" data-sort="group_number" data-i18n="sort_group_number">按组和番号</button>
+                  </div>
+                </div>
+                <button id="clearList" class="button" type="button" data-i18n="clear_btn">リストをクリア</button>
+              </div>
+            </div>
+            <div class="result-box" aria-live="polite">
+              <div id="resultTotal" class="result-total" data-i18n="result_desc">ここに結果が表示されます</div>
+              <ul id="resultList" class="result-list"></ul>
+            </div>
+          </div>
+        </div>
+      </details>
 
     </section>
   </main>
@@ -248,6 +295,16 @@
   </div>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="winOverlay" class="win-overlay" aria-hidden="true">
+    <div class="win-card">
+      <div class="win-title" data-i18n="win_title">恭喜中奖</div>
+      <div class="win-units" id="winUnits" aria-hidden="true"></div>
+      <div class="win-amount" id="winAmount">
+        <table class="win-table" id="winTable" aria-hidden="true"></table>
+      </div>
+      <div class="win-breakdown" id="winBreakdown"></div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
   <script src="./main.js"></script>
