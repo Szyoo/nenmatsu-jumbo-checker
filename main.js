@@ -193,6 +193,28 @@ const I18N = {
     prize_rank_7: "7等",
     prize_adjacent: "前後賞",
     prize_group_diff: "組違い賞",
+    export_label: "書き出し",
+    export_label_import: "導入",
+    export_ph: "短いテキスト...",
+    export_input_ph: "短いテキストを貼り付け...",
+    export_generate: "生成",
+    export_copy: "コピー",
+    export_paste: "貼り付け",
+    export_apply: "適用",
+    export_empty: "書き出す番号がありません",
+    export_no_code: "生成したテキストがありません",
+    export_invalid: "無効なテキストです",
+    export_copied: "書き出しテキストをコピーしました",
+    export_paste_failed: "貼り付けできませんでした",
+    export_restored: "リストを復元しました",
+    toast_copied: "コピーしました",
+    toast_pasted: "貼り付けました",
+    toast_added: "{count}件追加しました",
+    toast_latest: "最新回を選択しました",
+    toast_generated: "書き出しテキストを生成しました",
+    toast_applied: "導入しました",
+    toast_cleared: "リストをクリアしました",
+    toast_checked: "判定しました",
     group_label: "組",
     number_label: "番号（6桁）",
     group_ph: "例: 110",
@@ -285,6 +307,28 @@ const I18N = {
     prize_rank_7: "七等奖",
     prize_adjacent: "前后奖",
     prize_group_diff: "组别不同奖",
+    export_label: "导出",
+    export_label_import: "导入",
+    export_ph: "短文本...",
+    export_input_ph: "粘贴短文本...",
+    export_generate: "生成",
+    export_copy: "复制",
+    export_paste: "粘贴",
+    export_apply: "应用",
+    export_empty: "暂无可导出的号码",
+    export_no_code: "还没有生成文本",
+    export_invalid: "文本无效，无法还原",
+    export_copied: "已复制导出文本",
+    export_paste_failed: "粘贴失败",
+    export_restored: "已还原列表",
+    toast_copied: "已复制",
+    toast_pasted: "已粘贴",
+    toast_added: "已追加 {count} 个",
+    toast_latest: "已切换到最新回",
+    toast_generated: "已生成导出文本",
+    toast_applied: "已导入",
+    toast_cleared: "已清空列表",
+    toast_checked: "已判定",
     group_label: "组",
     number_label: "号码（6位）",
     group_ph: "例: 110",
@@ -377,6 +421,28 @@ const I18N = {
     prize_rank_7: "7th Prize",
     prize_adjacent: "Adjacent Prize",
     prize_group_diff: "Different Group Prize",
+    export_label: "Export",
+    export_label_import: "Import",
+    export_ph: "Short code...",
+    export_input_ph: "Paste short code...",
+    export_generate: "Generate",
+    export_copy: "Copy",
+    export_paste: "Paste",
+    export_apply: "Apply",
+    export_empty: "No entries to export",
+    export_no_code: "No generated code yet",
+    export_invalid: "Invalid code",
+    export_copied: "Export code copied",
+    export_paste_failed: "Paste failed",
+    export_restored: "List restored",
+    toast_copied: "Copied",
+    toast_pasted: "Pasted",
+    toast_added: "Added {count}",
+    toast_latest: "Switched to latest round",
+    toast_generated: "Export code generated",
+    toast_applied: "Imported",
+    toast_cleared: "List cleared",
+    toast_checked: "Checked",
     group_label: "Group",
     number_label: "Number (6 digits)",
     group_ph: "e.g. 110",
@@ -410,6 +476,18 @@ let currentLang = "zh";
 let currentSort = "added";
 let lastResults = null;
 const entries = [];
+let toastTimer = null;
+
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  if (!toast || !message) return;
+  toast.textContent = message;
+  toast.classList.add("is-visible");
+  if (toastTimer) window.clearTimeout(toastTimer);
+  toastTimer = window.setTimeout(() => {
+    toast.classList.remove("is-visible");
+  }, 1800);
+}
 
 function t(key) {
   return (I18N[currentLang] && I18N[currentLang][key]) || I18N.ja[key] || "";
@@ -585,6 +663,7 @@ function setupRoundSwitch() {
     const latest = getLatestOption(type);
     if (latest) {
       roundSelect.value = latest.value;
+      showToast(t("toast_latest"));
     }
   });
 
@@ -635,6 +714,50 @@ function addEntries(newItems) {
   });
 }
 
+function encodeEntries(list) {
+  if (!list.length) return "";
+  const bytes = new Uint8Array(list.length * 4);
+  list.forEach((e, idx) => {
+    const group = Math.min(999, Math.max(0, Number(normGroup(e.group))));
+    const number = Math.min(999999, Math.max(0, Number(pad6(e.number))));
+    const val = (group << 20) | number;
+    const offset = idx * 4;
+    bytes[offset] = (val >>> 24) & 0xff;
+    bytes[offset + 1] = (val >>> 16) & 0xff;
+    bytes[offset + 2] = (val >>> 8) & 0xff;
+    bytes[offset + 3] = val & 0xff;
+  });
+  let binary = "";
+  bytes.forEach(b => { binary += String.fromCharCode(b); });
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+function decodeEntries(token) {
+  const raw = String(token || "").trim();
+  if (!raw) return null;
+  let b64 = raw.replace(/-/g, "+").replace(/_/g, "/");
+  if (b64.length % 4) b64 += "=".repeat(4 - (b64.length % 4));
+  let binary = "";
+  try {
+    binary = atob(b64);
+  } catch {
+    return null;
+  }
+  if (!binary || binary.length % 4 !== 0) return null;
+  const items = [];
+  for (let i = 0; i < binary.length; i += 4) {
+    const b0 = binary.charCodeAt(i);
+    const b1 = binary.charCodeAt(i + 1);
+    const b2 = binary.charCodeAt(i + 2);
+    const b3 = binary.charCodeAt(i + 3);
+    const val = ((b0 << 24) | (b1 << 16) | (b2 << 8) | b3) >>> 0;
+    const group = String((val >>> 20) & 0x3ff).padStart(3, "0");
+    const number = String(val & 0xfffff).padStart(6, "0");
+    items.push({ group, number });
+  }
+  return items;
+}
+
 function renderEntryList() {
   const totalEl = document.getElementById("resultTotal");
   const listEl = document.getElementById("resultList");
@@ -652,6 +775,15 @@ function renderEntryList() {
         <button class="remove" type="button" aria-label="${t("remove_label")}">✕</button>
       </li>
     `).join("");
+}
+
+function resetResultView() {
+  const sortWrap = document.getElementById("sortWrap");
+  if (sortWrap) {
+    sortWrap.classList.remove("is-visible");
+    sortWrap.setAttribute("aria-hidden", "true");
+  }
+  lastResults = null;
 }
 
 function renderResultList(results = []) {
@@ -959,6 +1091,62 @@ document.getElementById("scanCopy").addEventListener("click", () => {
   const text = rawEl.textContent || "";
   if (!text.trim()) return;
   navigator.clipboard?.writeText(text);
+  showToast(t("toast_copied"));
+});
+
+document.getElementById("exportGenerate")?.addEventListener("click", () => {
+  const input = document.getElementById("exportText");
+  if (!input) return;
+  if (entries.length === 0) {
+    showToast(t("export_empty"));
+    return;
+  }
+  input.value = encodeEntries(entries);
+  showToast(t("toast_generated"));
+});
+
+document.getElementById("exportCopy")?.addEventListener("click", async () => {
+  const input = document.getElementById("exportText");
+  if (!input) return;
+  const token = String(input.value || "").trim();
+  if (!token) {
+    showToast(t("export_no_code"));
+    return;
+  }
+  try {
+    await navigator.clipboard?.writeText(token);
+  } catch {
+    input.focus();
+    input.select();
+  }
+  showToast(t("toast_copied"));
+});
+
+document.getElementById("exportPaste")?.addEventListener("click", async () => {
+  const input = document.getElementById("exportInput");
+  if (!input) return;
+  try {
+    const text = await navigator.clipboard?.readText();
+    if (text) input.value = text.trim();
+    showToast(t("toast_pasted"));
+  } catch {
+    showToast(t("export_paste_failed"));
+  }
+});
+
+document.getElementById("exportApply")?.addEventListener("click", () => {
+  const input = document.getElementById("exportInput");
+  if (!input) return;
+  const items = decodeEntries(input.value);
+  if (!items || items.length === 0) {
+    showToast(t("export_invalid"));
+    return;
+  }
+  entries.splice(0, entries.length);
+  addEntries(items);
+  resetResultView();
+  renderEntryList();
+  showToast(t("toast_applied"));
 });
 
 document.getElementById("sortBtn")?.addEventListener("click", () => {
@@ -1055,7 +1243,7 @@ document.getElementById("add").addEventListener("click", () => {
   addEntries(items);
 
   if (totalEl) {
-    totalEl.textContent = t("added_count").replace("{count}", String(items.length));
+    showToast(t("toast_added").replace("{count}", String(items.length)));
   }
   if (listEl) {
     renderEntryList();
@@ -1083,6 +1271,7 @@ document.getElementById("check").addEventListener("click", async () => {
 
     if (entries.length === 0) {
       renderResultList([]);
+      showToast(t("toast_checked"));
       return;
     }
 
@@ -1091,6 +1280,7 @@ document.getElementById("check").addEventListener("click", async () => {
       return { ...entry, hits, total };
     });
     renderResultList(results);
+    showToast(t("toast_checked"));
   } catch (e) {
     if (totalEl) totalEl.textContent = `${t("error_prefix")}: ${e.message || e}`;
   }
@@ -1126,6 +1316,7 @@ document.getElementById("clearList").addEventListener("click", () => {
     sortWrap.classList.remove("is-visible");
     sortWrap.setAttribute("aria-hidden", "true");
   }
+  showToast(t("toast_cleared"));
 });
 
 let fwRunning = false;
