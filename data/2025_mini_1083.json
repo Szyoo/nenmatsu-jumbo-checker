@@ -1,0 +1,19 @@
+{
+  "meta": { "year": 2025, "round": 1083, "type": "mini" },
+  "prizes": [
+    { "name": "1等", "type": "mini_exact", "group_last_digit": "1", "number": "114597", "amount": 30000000 },
+
+    { "name": "2等", "type": "mini_exact", "group_last_digit": "2", "number": "150935", "amount": 1000000 },
+
+    { "name": "3等", "type": "last_n_digits", "n": 4, "digits": "1012", "amount": 30000 },
+    { "name": "3等", "type": "last_n_digits", "n": 4, "digits": "1863", "amount": 30000 },
+    { "name": "3等", "type": "last_n_digits", "n": 4, "digits": "4885", "amount": 30000 },
+
+    { "name": "4等", "type": "last_n_digits", "n": 3, "digits": "015", "amount": 10000 },
+    { "name": "4等", "type": "last_n_digits", "n": 3, "digits": "850", "amount": 10000 },
+    { "name": "4等", "type": "last_n_digits", "n": 3, "digits": "860", "amount": 10000 },
+
+    { "name": "5等", "type": "last_n_digits", "n": 2, "digits": "96", "amount": 3000 },
+    { "name": "6等", "type": "last_n_digits", "n": 1, "digits": "3", "amount": 300 }
+  ]
+}
